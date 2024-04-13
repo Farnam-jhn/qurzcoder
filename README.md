@@ -4,9 +4,13 @@ a simple Python script that encodes data from **"data.txt**" file, then encrypts
 
 Requires "cryptography" Library 
 install it using following command (in unix systems, idk how you can install python packages in windows, last time i used it was 2016) :
+
 `pip3 install cryptography`
+
 or :
+
 `pip3 install -r requirements.txt`
+
 ### Heres how it works :
 
 #### Encoder :
