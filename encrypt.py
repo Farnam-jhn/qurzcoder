@@ -1,7 +1,12 @@
 
 # Importing required libraries
 
+import os
 import random
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from base64 import b64encode, b64decode
 
 # Extracting data from data.txt file
 
@@ -56,8 +61,30 @@ finalResult = dictidentity+"-"+str(encodedResult)
 
 finalResult = finalResult.encode().hex()
 
+# Encrypting hexadecimals to make it safe 
+# Generating a random key 
+
+cryptKey = os.urandom(32)
+cryptKey = cryptKey.hex()
+
+# Defining a fnction that encrypts finalResult
+
+def encryptData(key, data):
+    key = key[:32].encode()
+    iv = b'\x00' * 16  
+    padder = padding.PKCS7(128).padder()
+    padded_message = padder.update(data.encode()) + padder.finalize()
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(padded_message) + encryptor.finalize()
+    return b64encode(ct).decode()
+
+# Encrypting the data
+
+result = encryptData(cryptKey, finalResult)
+result = cryptKey+"-"+result
+
 # Writing the output to "encdata.txt"
 
 outputFile = open("encdata.txt", "w")
-outputFile.write(str(finalResult))
-
+outputFile.write(result)

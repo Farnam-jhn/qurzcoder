@@ -1,12 +1,41 @@
-# Extracting Encoded data from "encdata.txt"
+# Importing required libraries 
 
-encHexData = open("encdata.txt", "r")
-for i in encHexData.readlines():
-    encHexData = i
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from base64 import b64encode, b64decode
+
+# Extracting Encrypted data from "encdata.txt"
+
+encrytedData = open("encdata.txt", "r")
+for i in encrytedData.readlines():
+    encrytedData = i
+
+# Spliting data to indivisual pieces
+
+devidedInput = encrytedData.split('-')
+unlockKey = devidedInput[0]
+data = devidedInput[1]
+
+# Defining a funtion that decrypts the encrypted data :
+
+def decryptData(key, ciphertext):
+    key = key[:32].encode()
+    ct = b64decode(ciphertext)
+    cipher = Cipher(algorithms.AES(key), modes.CBC(b'\x00' * 16), backend=default_backend())
+    decryptor = cipher.decryptor()
+    padded_message = decryptor.update(ct) + decryptor.finalize()
+    unpadder = padding.PKCS7(128).unpadder()
+    message = unpadder.update(padded_message) + unpadder.finalize()
+    return message.decode()
+
+# Decrypting the data
+
+decrypedtData = decryptData(unlockKey, data)
 
 # Decoding hexadecimals back to normal encoded string
 
-encData = bytes.fromhex(encHexData).decode()
+encData = bytes.fromhex(decrypedtData).decode()
 
 # Spliting data to indivisual pieces
 
